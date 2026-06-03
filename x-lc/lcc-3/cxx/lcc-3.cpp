@@ -26,7 +26,9 @@ Notice that the answer must be a substring, "pwke" is a subsequence and not a su
 
 /* --std=c++20*/
 
+#include <algorithm>
 #include <iostream>
+#include <ostream>
 #include <unordered_set>
 #include <vector>
 #include <climits>
@@ -121,39 +123,44 @@ class Longest {
             }
         }
 
-        void sub_string(std::string s) {
-            int l = 0, j = 0;
-            std::unordered_set<char> hash;
-            int n = 0;
-            std::string temp, longest;
+        std::string sub_string(std::string_view s) {
+            int r = 0;
+            std::unordered_set<char> seen;
+            std::string longest;
+
+            str.clear();
             /*expand, shrink*/
-            for (j = 0; j < s.size(); ++j) {
-                if (!hash.contains(s[j])) {
-                    longest.push_back(s[j]);
-                    hash.insert(s[j]);
+            for (r = 0; r < s.size(); ++r) {
+                if (!seen.contains(s[r])) {
+                    longest.push_back(s[r]);
+                    seen.insert(s[r]);
                 }
                 else {
-                    /*shrink*/
-                    for (; l < j; ++l) {
-                        temp.push_back(s[l]);
-                        hash.erase(s[l]);
-                    }
-                    if(temp.size()) {
-                        str.push_back(temp);
-                        temp.clear();
-                        longest.clear();
-                    }
+                    /*since longest already has the characters, just push*/
+                    str.push_back(longest);
+                    longest.clear();
+                    seen.clear();
+                    // ✅ s[r] starts the new window
+                    // bug fix: do not fix the duplicate characters
+                    longest.push_back(s[r]);
+                    seen.insert(s[r]);
                 }
             }
             //when there is no shrink to do
-            if ( l != j - 1)
-                        str.push_back(longest);
+            if (!longest.empty())
+                str.push_back(longest);
+
+            auto res = std::max_element(str.begin(), str.end(),
+                    [](const std::string& a, const std::string& b) {
+                    return a.size() < b.size();
+                    });
+            return {*res};
         }
 };
 
 int main() {
 
-
+#if 0
     std::vector<int> v{2, 3, 1, 2, 4, 3};
     std::vector<int> e{2, 3};
     Var_Sli_Window<int> w(v), l(e);
@@ -162,10 +169,24 @@ int main() {
     l.sub_win2(7);
     l.prn_win();
     std::cout << w.min_win(7) <<std::endl;
+#endif
     Longest long_str;
-    long_str.sub_string("abcalkmnopnpat");
-    long_str.prn_str();
-
+    std::string_view test = "abcalkmnopnpat";
+    std::cout << "test string " << test << std::endl;
+    std::cout << "longest string " << long_str.sub_string(test) <<std::endl;
+    //long_str.prn_str();
+    test = "abcabcbb";
+    std::cout << "test string " << test << std::endl;
+    //Input: s = "abcabcbb"
+    std::cout << "longest string " << long_str.sub_string(test) <<std::endl;
+    test = "bbbb";
+    std::cout << "test string " << test << std::endl;
+    //Input: s = "bbbbb"
+    std::cout << "longest string " << long_str.sub_string(test) <<std::endl;
+    //Input: s = "pwwkew"
+    test = "pwwkew";
+    std::cout << "test string " << test << std::endl;
+    std::cout << "longest string " << long_str.sub_string(test) <<std::endl;
     return 0;
 }
 
