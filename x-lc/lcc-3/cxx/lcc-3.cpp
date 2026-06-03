@@ -150,7 +150,8 @@ class Longest {
             if (!longest.empty())
                 str.push_back(longest);
 
-            auto res = std::max_element(str.begin(), str.end(),
+            if(str.empty()) return "null";
+                auto res = std::max_element(str.begin(), str.end(),
                     [](const std::string& a, const std::string& b) {
                     return a.size() < b.size();
                     });
@@ -185,6 +186,9 @@ int main() {
     std::cout << "longest string " << long_str.sub_string(test) <<std::endl;
     //Input: s = "pwwkew"
     test = "pwwkew";
+    std::cout << "test string " << test << std::endl;
+    std::cout << "longest string " << long_str.sub_string(test) <<std::endl;
+    test = "";
     std::cout << "test string " << test << std::endl;
     std::cout << "longest string " << long_str.sub_string(test) <<std::endl;
     return 0;
