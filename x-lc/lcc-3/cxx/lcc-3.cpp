@@ -29,11 +29,12 @@ Notice that the answer must be a substring, "pwke" is a subsequence and not a su
 #include <algorithm>
 #include <iostream>
 #include <ostream>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include <climits>
 #include <cstdint>
-
+#include <format>
 template<typename T>
 std::vector<T> add_result(const T& s, const T& i){
     return {s, i};
@@ -123,6 +124,38 @@ class Longest {
             }
         }
 
+        /*using unordered map O(1)*/
+        std::string longest_sub_string(std::string_view s) {
+
+            std::unordered_map<char, int> seen;
+            int max_len = 0;
+            int l = -1, r = -1, i;
+
+            for (i = 0; i < s.size(); ++i) {
+                //add and find
+                auto it = seen.find(s[i]);
+                if (it != seen.end()){
+                    //std::cout << std::format(" character {} index {} max_len {} diff {}\n", it->first, it->second, max_len, i - it->second);
+                    int old_max = max_len;
+                    max_len = std::max(max_len, i - it->second);
+                    if( max_len != old_max) {
+                        l = it->second;
+                        r = i ;
+                        //std::cout << std::format("l {} r {}\n", l , r);
+                    }
+                    seen.clear();
+                }
+                seen[s[i]] = i;
+
+            }
+
+            if (l == -1 && r == -1)
+                return std::string{s.substr(0, i)};
+
+            return std::string{s.substr(l, r)};
+        }
+
+        //using unordered set O(1)
         std::string sub_string(std::string_view s) {
             int r = 0;
             std::unordered_set<char> seen;
@@ -151,7 +184,7 @@ class Longest {
                 str.push_back(longest);
 
             if(str.empty()) return "null";
-                auto res = std::max_element(str.begin(), str.end(),
+            auto res = std::max_element(str.begin(), str.end(),
                     [](const std::string& a, const std::string& b) {
                     return a.size() < b.size();
                     });
@@ -191,6 +224,20 @@ int main() {
     test = "";
     std::cout << "test string " << test << std::endl;
     std::cout << "longest string " << long_str.sub_string(test) <<std::endl;
+
+    test = "abcabcbb";
+    std::cout << "test string " << test << std::endl;
+    std::cout << "longest string " << long_str.longest_sub_string(test) <<std::endl;
+
+    test = "abcdefghij";
+    std::cout << "test string " << test << std::endl;
+    std::cout << "longest string " << long_str.longest_sub_string(test) <<std::endl;
+    test = "aabcdefghij";
+    std::cout << "test string " << test << std::endl;
+    std::cout << "longest string " << long_str.longest_sub_string(test) <<std::endl;
+
+
+
     return 0;
 }
 
