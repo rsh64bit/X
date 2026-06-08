@@ -128,15 +128,16 @@ class Longest {
         std::string longest_sub_string(std::string_view s) {
 
             std::unordered_map<char, int> seen;
-            int max_len = 0;
+            int max_len = 0, len = 0;
             int l = -1, r = -1, i;
 
             for (i = 0; i < s.size(); ++i) {
                 //add and find
-                auto it = seen.find(s[i]);
-                if (it != seen.end()){
+                auto [it, inserted] = seen.try_emplace(s[i], i);
+                if (!inserted){
                     //std::cout << std::format(" character {} index {} max_len {} diff {}\n", it->first, it->second, max_len, i - it->second);
                     int old_max = max_len;
+                    len = 0;
                     max_len = std::max(max_len, i - it->second);
                     if( max_len != old_max) {
                         l = it->second;
@@ -144,14 +145,13 @@ class Longest {
                         //std::cout << std::format("l {} r {}\n", l , r);
                     }
                     seen.clear();
+                    seen[s[i]] = i;
                 }
-                seen[s[i]] = i;
-
+                else len++;
             }
-
             if (l == -1 && r == -1)
                 return std::string{s.substr(0, i)};
-
+            if ( len > max_len) return std::string{s.substr(r, len + 1)}; 
             return std::string{s.substr(l, r)};
         }
 
@@ -236,6 +236,9 @@ int main() {
     std::cout << "test string " << test << std::endl;
     std::cout << "longest string " << long_str.longest_sub_string(test) <<std::endl;
 
+    test = "abcdaefghij";
+    std::cout << "test string " << test << std::endl;
+    std::cout << "longest string " << long_str.longest_sub_string(test) <<std::endl;
 
 
     return 0;
